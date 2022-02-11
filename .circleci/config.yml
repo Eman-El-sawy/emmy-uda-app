@@ -3,33 +3,47 @@ orbs:
   node: circleci/node@5.0.0
   aws-cli: circleci/aws-cli@2.0.6
 jobs:
-  frontend:
-    working_directory: ~/app/udagram-frontend
-    executor: node/default
-    steps:
-      - checkout:
-          path: ~/app
-      - node/install-packages:
-          app-dir: ~/app/udagram-frontend
-      - run:
-          name: Build Frontend
-          command: npm run build
-  
-  server:
-    working_directory: ~/app/udagram-api
-    executor: node/default
-    steps:
-      - checkout:
-          path: ~/app
-      - node/install-packages:
-          app-dir: ~/app/udagram-api
-      - run:
-          name: BuildServer
-          command: |-
-            npm run build
-     
+ frontend:
+    build:
+      executor: node/default
+      steps:
+          - node/install
+          - checkout
+          - run:
+              name: Front-End Install
+              command: |
+                npm run fe:install
+          - run:
+              name: Front-End Build
+              command: |
+                npm run fe:build
+          - run:
+              name: Deploy Frontend
+              command: npm run fe:deploy
+ backend:
+    build:
+      executor: node/default
+      steps:
+          - node/install
+          - checkout
+          - run:
+              name: Front-End Install
+              command: |
+                npm run api:install
+          - run:
+              name: Front-End Build
+              command: |
+                npm run api:build
+          - run:
+              name: Deploy Server
+              command: |-
+                aws s3 cp ./www/Archive.zip $S3_BUCKET_SERVER --profile default
+                aws elasticbeanstalk create-application-version --application-name $EB_APP --version-label <<pipeline.git.revision>> --source-bundle S3Bucket="$EB_BUCKET",S3Key="Archive.zip" --profile default
+                aws elasticbeanstalk update-environment --application-name $EB_APP --environment-name $EB_ENV --version-label <<pipeline.git.revision>> --profile default
+        
+
 workflows:
   build_and_deploy:
     jobs:
       - frontend
-      - server
+      - backend
