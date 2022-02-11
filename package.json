@@ -4,6 +4,7 @@
          "api:install": "cd udagram-api && npm instal && cd ..",
          "api:build": "cd udagram-api && npm run build && cd ..",
          "api:test": "cd udagram-api && npm run test && cd ..",
+         "api:deploy": "cd udagram-api && npm run deploy && cd ..",
          "fe:install": "cd udagram-frontend && npm install && cd ..",
          "fe:build": "cd udagram-frontend && npm run build && cd ..",
          "fe:deploy": "cd udagram-frontend && npm run deploy && cd ..",
