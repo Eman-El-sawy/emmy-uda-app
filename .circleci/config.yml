@@ -3,37 +3,31 @@ orbs:
   node: circleci/node@5.0.0
   aws-cli: circleci/aws-cli@2.0.6
 jobs:
-  frontend:
-    working_directory: ~/app
-    executor: node/default
+  build:
     steps:
-      - checkout:
-          path: ~/app
+      - node/install
+      - checkout
+      - aws-cli/setup
       - run:
           name: Front-End Install
-          command: npm run fe:install
-      - run:
-          name: Build Frontend
-          command: npm run fe:build
-      - aws-cli/install
-      - run:
-          name: Deploy Frontend
-          command: npm run fe:deploy
-  backend:
-    working_directory: ~/app
-    executor: node/default
-    steps:
-      - checkout:
-          path: ~/app
+          command: |
+            npm run fe:install
       - run:
           name: Back-End Install
-          command: |-
+          command: |
             npm run api:install
       - run:
-          name: Build backend
-          command: |-
+          name: Front-End Build
+          command: |
+            npm run fe:build
+      - run:
+          name: Back-End Build
+          command: |
             npm run api:build
-      - aws-cli/install
+      - run:
+          name: Deploy frontend
+          command: |
+            npm run fe:deploy
       - run:
           name: Deploy backend
           command: |-
@@ -44,5 +38,5 @@ jobs:
 workflows:
   build_and_deploy:
     jobs:
-      - frontend
-      - backend
+      - build
+      
